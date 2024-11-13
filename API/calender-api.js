@@ -1,11 +1,19 @@
 const { google } = require('googleapis');
 const calendar = google.calendar('v3');
+const moment = require('moment-timezone');
+
+const calendarId = 'hasita0@gmail.com';
+
+const sltStart = '2024-11-10T16:00:00.00+05:30';
+const sltEnd = '2024-11-13T17:59:59.00+05:30';
+
+getBusyIntervals(calendarId, sltStart, sltEnd);
 
 async function getBusyIntervals(calendarId, timeMin, timeMax) {
     try {
         const auth = new google.auth.GoogleAuth({
-            keyFile: 'test-project-for-zincat-957496b853cd.json', // need to replace sevice account key
-            scopes: ['https://www.googleapis.com/auth/calendar.readonly'],
+            keyFile: 'test-project-for-zincat-a304aafcb8e0.json',
+            scopes: ['https://www.googleapis.com/auth/calendar']
         });
 
         const authClient = await auth.getClient();
@@ -21,17 +29,15 @@ async function getBusyIntervals(calendarId, timeMin, timeMax) {
 
         const busyIntervals = response.data.calendars[calendarId].busy;
 
-        console.log("Busy Intervals:", busyIntervals);
-        
+        busyIntervals.forEach(interval => {
+            const startSLT = moment(interval.start).tz('Asia/Colombo').format('YYYY-MM-DD HH:mm');
+            const endSLT = moment(interval.end).tz('Asia/Colombo').format('YYYY-MM-DD HH:mm');
+
+            console.log(`Busy from ${startSLT} to ${endSLT}`);
+        });
+
         return busyIntervals;
     } catch (error) {
         console.error("Error retrieving busy intervals:", error);
     }
 }
-
-
-const calendarId = 'hasitanilupul@gmail.com';
-const timeMin = '2024-11-01T00:00:00Z';
-const timeMax = '2024-11-30T23:59:59Z';
-
-getBusyIntervals(calendarId, timeMin, timeMax);
